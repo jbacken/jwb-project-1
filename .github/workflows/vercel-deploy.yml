@@ -1,5 +1,12 @@
-name: Vercel Preview Deployment
-on: workflow_dispatch
+name: Vercel Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Vercel Environment"
+        required: true
+        options: ["preview", "production"]
+        default: "preview"
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
@@ -8,12 +15,6 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-    inputs:
-      environment:
-        description: "Vercel Environment"
-        required: true
-        options: ["preview", "production"]
-        default: "preview"
     steps:
       - uses: actions/checkout@v3
       - name: Install Node.js
