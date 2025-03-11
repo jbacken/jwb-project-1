@@ -51,11 +51,16 @@ jobs:
           for instance in "${instances[@]}"; do
             echo "Deploying to Vercel environment: $instance"
 
-            INSTANCE=$(echo "$instance" | tr '[:lower:]' '[:upper:]')
-
             # Dynamically set project and org IDs based on selected instance(s)
-            project_id=$(echo "${{ secrets.VERCEL_PROJECT_ID_${INSTANCE} }}")
-
+            if [[ "$INSTANCE" == "Staff" ]]; then
+              project_id="${{ secrets.VERCEL_PROJECT_ID_STAFF }}"
+            elif [[ "$INSTANCE" == "Operator" ]]; then
+              project_id="${{ secrets.VERCEL_PROJECT_ID_OPERATOR }}"
+            else
+              echo "Error: Unknown instance: $INSTANCE"
+              exit 1
+            fi
+            
             # Configure Vercel Project
             mkdir -p .vercel
             echo "{\"projectId\": \"$project_id\", \"orgId\": \"${{ secrets.VERCEL_ORG_ID}}\"}" > .vercel/project.json
