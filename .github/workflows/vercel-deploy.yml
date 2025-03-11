@@ -14,15 +14,14 @@ on:
         default: preview
       instances:
         type: choice
-        multiple: true
         description: Tango Instance(s)
         required: true
         options:
           - Staff
           - Operator
+          - Both
         default:
-          - Staff
-          - Operator
+          - Both
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
@@ -42,9 +41,15 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Deploy to Vercel Environments
+      - name: Deploy to Vercel
         run: |
-          for instance in "${{ join(github.event.inputs.instances, ',') }}"; do
+          if [[ "${{ github.event.inputs.instances }}" == "both" ]]; then
+            instances=("Staff" "Operator")
+          else
+            instances=("${{ github.event.inputs.instances }}")
+          fi
+
+          for instance in "${instances[@]}"; do
             echo "Deploying to Vercel environment: $instance"
 
             # Dynamically set project and org IDs based on selected instance(s)
