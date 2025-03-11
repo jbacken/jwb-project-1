@@ -42,10 +42,17 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
-          if [[ "${{ github.event.inputs.instances }}" == "Both" ]]; then
-            instances=("Staff" "Operator")
+          # Determine instances based on trigger
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # This was manually triggered, so an input was provided or defaulted to "Both":
+            if [[ "${{ github.event.inputs.instances }}" == "Both" ]]; then
+              instances=("Staff" "Operator")
+            else
+              instances=("${{ github.event.inputs.instances }}")
+            fi
           else
-            instances=("${{ github.event.inputs.instances }}")
+            # This was triggered via a push event, so we can set an Instance.  For now, let's assume both:
+            instances=("Staff" "Operator")
           fi
 
           for instance in "${instances[@]}"; do
