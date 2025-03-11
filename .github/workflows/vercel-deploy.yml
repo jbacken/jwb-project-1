@@ -20,8 +20,7 @@ on:
           - Staff
           - Operator
           - Both
-        default:
-          - Both
+        default: Both
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
