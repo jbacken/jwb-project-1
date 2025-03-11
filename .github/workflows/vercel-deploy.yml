@@ -41,7 +41,6 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Deploy to Vercel
-        environment: ${{ github.event.inputs.environment }}
         run: |
           # Determine instances based on trigger
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
