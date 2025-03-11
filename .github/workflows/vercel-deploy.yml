@@ -80,6 +80,6 @@ jobs:
             echo "Vercel Project Configuration: " && cat .vercel/project.json
 
             # Vercel Pull and Deploy
-            vercel pull --environment=$instance --token=${{ secrets.VERCEL_TOKEN }}
+            vercel pull --environment=$environment --token=${{ secrets.VERCEL_TOKEN }}
             vercel deploy --prebuilt ${{ github.event.inputs.github_environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
           done
