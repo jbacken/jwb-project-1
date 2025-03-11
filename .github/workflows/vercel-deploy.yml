@@ -81,5 +81,5 @@ jobs:
 
             # Vercel Pull and Deploy
             vercel pull --environment=$environment --token=${{ secrets.VERCEL_TOKEN }}
-            vercel deploy --prebuilt ${{ github.event.inputs.github_environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+            vercel deploy ${{ github.event.inputs.github_environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
           done
