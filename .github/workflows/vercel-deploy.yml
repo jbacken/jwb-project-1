@@ -24,7 +24,7 @@ on:
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'preview' }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Node.js
@@ -51,7 +51,8 @@ jobs:
               instances=("${{ github.event.inputs.instances }}")
             fi
           else
-            # This was triggered via a push event, so we can set an Instance.  For now, let's assume both:
+            # This was triggered via a push event, so we must set an Instnace ourselves - Let's assume both, and in a preview environment:
+            environment="preview"
             instances=("Staff" "Operator")
           fi
 
@@ -68,7 +69,7 @@ jobs:
               exit 1
             fi
             
-            echo "environment: ${{ github.event.inputs.environment }}" # Add this line
+            echo "environment: $environment" # Add this line
             echo "Project ID: $project_id" # Add this line
             echo "Org ID: ${{ secrets.VERCEL_ORG_ID }}" # Add this line
 
