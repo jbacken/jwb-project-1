@@ -68,6 +68,10 @@ jobs:
               exit 1
             fi
             
+            echo "Project ID: $project_id" # Add this line
+            echo "Org ID: ${{ secrets.VERCEL_ORG_ID }}" # Add this line
+
+
             # Configure Vercel Project
             mkdir -p .vercel
             echo "{\"projectId\": \"$project_id\", \"orgId\": \"${{ secrets.VERCEL_ORG_ID}}\"}" > .vercel/project.json
