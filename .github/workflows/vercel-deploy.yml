@@ -1,21 +1,30 @@
-name: Vercel Deployment
+name: Deploy to Vercel
 on:
-  push:
-    branches:
-      - dev
-      - test
+  # push:
+  #   branches:
+  #     - dev
+  #     - test
   workflow_dispatch:
     inputs:
       environment:
         type: choice
-        description: Vercel Environment
+        description: Environment
         required: true
         options: ["preview", "production"]
         default: preview
+      instances:
+        type: choice
+        description: Tango Instance(s)
+        required: true
+        options:
+          - Staff
+          - Operator
+          - Both
+        default: Both
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'preview' }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Node.js
@@ -30,7 +39,42 @@ jobs:
           run_install: false
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=${{ github.event.inputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy ${{ github.event.inputs.environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        run: |
+          # Determine variables based on action trigger source (either manually triggered or via a push event)
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # This was manually triggered, so an input was provided...if user selected "both", then let's set to both Staff and Operator:
+            if [[ "${{ github.event.inputs.instances }}" == "Both" ]]; then
+              instances=("Staff" "Operator") # (Bash array)
+            else
+              instances=("${{ github.event.inputs.instances }}")  # (single-item Bash array)
+            fi
+          else
+            # This was triggered via a push event (configured above), so we must default some values here: We'll default to a "preview" deploy in both environments:
+            environment="preview"
+            instances=("Staff" "Operator") # (Bash array)
+          fi
+
+          # Now spin through the instances array, and pull/deploy to Vercel:
+          for instance in "${instances[@]}"; do
+            echo "Deploying to Vercel environment: $instance"
+
+            # Dynamically set project and org IDs based on the current instance:
+            if [[ "$instance" == "Staff" ]]; then
+              project_id="${{ secrets.VERCEL_PROJECT_ID_STAFF }}"
+            elif [[ "$instance" == "Operator" ]]; then
+              project_id="${{ secrets.VERCEL_PROJECT_ID_OPERATOR }}"
+            else
+              echo "Error: Unknown instance: $instance"
+              exit 1
+            fi
+
+            # Initialize the Vercel Project file to enable the pull/deploy commands:
+            mkdir -p .vercel
+            echo "{\"projectId\": \"$project_id\", \"orgId\": \"${{ secrets.VERCEL_ORG_ID}}\"}" > .vercel/project.json
+
+            # Vercel Pull and Deploy:
+            vercel pull --environment=$environment --token=${{ secrets.VERCEL_TOKEN }}
+            vercel deploy ${{ github.event.inputs.github_environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+          done
