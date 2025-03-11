@@ -59,12 +59,12 @@ jobs:
             echo "Deploying to Vercel environment: $instance"
 
             # Dynamically set project and org IDs based on selected instance(s)
-            if [[ "$INSTANCE" == "Staff" ]]; then
+            if [[ "$instance" == "Staff" ]]; then
               project_id="${{ secrets.VERCEL_PROJECT_ID_STAFF }}"
-            elif [[ "$INSTANCE" == "Operator" ]]; then
+            elif [[ "$instance" == "Operator" ]]; then
               project_id="${{ secrets.VERCEL_PROJECT_ID_OPERATOR }}"
             else
-              echo "Error: Unknown instance: $INSTANCE"
+              echo "Error: Unknown instance: $instance"
               exit 1
             fi
             
