@@ -41,6 +41,7 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Deploy to Vercel
+        environment: ${{ github.event.inputs.environment }}
         run: |
           # Determine instances based on trigger
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -68,6 +69,7 @@ jobs:
               exit 1
             fi
             
+            echo "environment: ${{ github.event.inputs.environment }}" # Add this line
             echo "Project ID: $project_id" # Add this line
             echo "Org ID: ${{ secrets.VERCEL_ORG_ID }}" # Add this line
 
