@@ -8,10 +8,21 @@ on:
     inputs:
       environment:
         type: choice
-        description: Vercel Environment
+        description: Environment
         required: true
         options: ["preview", "production"]
         default: preview
+      instances:
+        type: choice
+        multiple: true
+        description: Tango Instance(s)
+        required: true
+        options:
+          - Staff
+          - Operator
+        default:
+          - Staff
+          - Operator
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
@@ -30,7 +41,21 @@ jobs:
           run_install: false
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=${{ github.event.inputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy ${{ github.event.inputs.environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel Environments
+        run: |
+          for instance in "${{ join(github.event.inputs.instances, ',') }}"; do
+            echo "Deploying to Vercel environment: $instance"
+
+            # Dynamically set project and org IDs based on selected instance(s)
+            project_id=$(echo "${{ secrets.VERCEL_PROJECT_ID_${{ instance | upper }} }}")
+
+            # Configure Vercel Project
+            mkdir -p .vercel
+            echo "{\"projectId\": \"$project_id\", \"orgId\": \"${{ secrets.VERCEL_ORG_ID}}\"}" > .vercel/project.json
+            echo "Vercel Project Configuration: " && cat .vercel/project.json
+
+            # Vercel Pull and Deploy
+            vercel pull --environment=$instance --token=${{ secrets.VERCEL_TOKEN }}
+            vercel deploy --prebuilt ${{ github.event.inputs.github_environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+          done
