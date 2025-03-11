@@ -42,7 +42,7 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
-          if [[ "${{ github.event.inputs.instances }}" == "both" ]]; then
+          if [[ "${{ github.event.inputs.instances }}" == "Both" ]]; then
             instances=("Staff" "Operator")
           else
             instances=("${{ github.event.inputs.instances }}")
