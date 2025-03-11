@@ -54,7 +54,7 @@ jobs:
             INSTANCE=$(echo "$instance" | tr '[:lower:]' '[:upper:]')
 
             # Dynamically set project and org IDs based on selected instance(s)
-            project_id=$(echo "${{ secrets.VERCEL_PROJECT_ID_${{ INSTANCE }} }}")
+            project_id=$(echo "${{ secrets.VERCEL_PROJECT_ID_${INSTANCE} }}")
 
             # Configure Vercel Project
             mkdir -p .vercel
