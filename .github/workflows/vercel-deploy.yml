@@ -51,8 +51,10 @@ jobs:
           for instance in "${instances[@]}"; do
             echo "Deploying to Vercel environment: $instance"
 
+            INSTANCE=$(echo "$instance" | tr '[:lower:]' '[:upper:]')
+
             # Dynamically set project and org IDs based on selected instance(s)
-            project_id=$(echo "${{ secrets.VERCEL_PROJECT_ID_${{ instance | upper }} }}")
+            project_id=$(echo "${{ secrets.VERCEL_PROJECT_ID_${{ INSTANCE }} }}")
 
             # Configure Vercel Project
             mkdir -p .vercel
