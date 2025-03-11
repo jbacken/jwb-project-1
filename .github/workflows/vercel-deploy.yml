@@ -1,9 +1,9 @@
 name: Deploy to Vercel
 on:
-  # push:
-  #   branches:
-  #     - dev
-  #     - test
+  push:
+    branches:
+      - dev
+      - test
   workflow_dispatch:
     inputs:
       environment:
